@@ -30,41 +30,41 @@ from libqtile import layout, bar, widget
 
 from typing import List  # noqa: F401
 
+from mods import lighten, darken, palette
 
 mod = "mod4"
+alt = 'mod1'
+ctrl = 'control'
 
 keys = [
     # Switch between windows in current stack pane
-    Key([mod], "k", lazy.layout.down()),
-    Key([mod], "j", lazy.layout.up()),
-
+    Key([alt], "Up", lazy.layout.up()),
+    Key([alt], "Down", lazy.layout.down()),
+    Key([alt], "Left", lazy.layout.left()),
+    Key([alt], "Right", lazy.layout.right()),
+    Key([alt], 'Tab', lazy.layout.next()),
+    
     # Move windows up or down in current stack
-    Key([mod, "control"], "k", lazy.layout.shuffle_down()),
-    Key([mod, "control"], "j", lazy.layout.shuffle_up()),
-
-    # Switch window focus to other pane(s) of stack
-    Key([mod], "space", lazy.layout.next()),
-
-    # Swap panes of split stack
-    Key([mod, "shift"], "space", lazy.layout.rotate()),
-
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
-    Key([mod], "Return", lazy.spawn("terminator")),
+    Key([mod, alt], "Up", lazy.layout.shuffle_down()),
+    Key([mod, alt], "Down", lazy.layout.shuffle_up()),
+    Key([mod, alt], "m", lazy.layout.swap_main()),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout()),
+
+    # Groups
+    Key([ctrl, alt], 'Right', lazy.screen.next_group()),
+    Key([ctrl, alt], 'Left', lazy.screen.prev_group()),
+
+    
+    # Qtile commands
+    Key([mod, ctrl], "r", lazy.restart()),
+    Key([mod, ctrl], "q", lazy.shutdown()),
     Key([mod], "w", lazy.window.kill()),
 
-    Key([mod, "control"], "r", lazy.restart()),
-    Key([mod, "control"], "q", lazy.shutdown()),
-    Key([mod], "r", lazy.spawncmd()),
+    # Custom commands/apps
     Key([mod], "space", lazy.spawn("rofi -show run")),
-    Key(['control', 'mod1'], 'Right', lazy.screen.next_group()),
-    Key(['control', 'mod1'], 'Left', lazy.screen.next_group()),
+    Key([mod], "Return", lazy.spawn("terminator")),
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -80,14 +80,19 @@ for i in groups:
 
 layouts = [
     layout.Max(),
-    layout.Stack(num_stacks=2)
+    layout.MonadTall(
+        border_focus = palette.primary,
+        border_normal = palette.background,
+        border_width = 1,
+    )
 ]
 
 widget_defaults = dict(
     font='sans',
     fontsize=10,
     padding=3,
-    foreground='#909090',
+    foreground=palette.foreground,
+    background=palette.background,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -100,9 +105,10 @@ screens = [
                     font='monospace',
                     highlight_method='block',
                     rounded=False,
-                    active='#FFFFFF',
-                    foreground='#FFFFFF',
-                    inactive='#909090',
+                    active=lighten(palette.foreground, 1),
+                    foreground=palette.foreground,
+                    inactive=palette.foreground,
+                    this_current_screen_border=palette.primary,
                     margin_y=0,
                 ),
                 widget.Prompt(),
@@ -110,8 +116,8 @@ screens = [
                 widget.Systray(),
                 widget.Battery(
                     format='⚡ {percent:2.0%}{char}',
-                    background='#F0E68C',
-                    foreground='#404040',
+                    background=lighten(palette.warning, 0.15),
+                    foreground=darken(palette.foreground, 0.5),
                     charge_char='↑',
                     discharge_char='↓',
                     empty_char='☠'
@@ -120,12 +126,12 @@ screens = [
             ],
             18,
             **{
-                'background': '#303030',
+                'background': palette.background,
             },
         ),
     ),
 ]
-print('=======')
+
 # Drag floating layouts.
 mouse = [
     Drag([mod], "Button1", lazy.window.set_position_floating(),
