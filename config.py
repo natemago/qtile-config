@@ -24,9 +24,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+import subprocess
+
 from libqtile.config import Key, Screen, Group, Drag, Click
 from libqtile.command import lazy
-from libqtile import layout, bar, widget
+from libqtile import layout, bar, widget, hook
 
 from typing import List  # noqa: F401
 
@@ -83,7 +86,7 @@ layouts = [
     layout.MonadTall(
         border_focus = palette.primary,
         border_normal = palette.background,
-        border_width = 1,
+        border_width = 2,
     )
 ]
 
@@ -114,6 +117,10 @@ screens = [
                 widget.Prompt(),
                 widget.WindowName(),
                 widget.Systray(),
+                #widget.KeyboardKbdd(
+                #    configured_keyboards = ['us', 'mk'],
+                #),
+                widget.Volume(),
                 widget.Battery(
                     format='⚡ {percent:2.0%}{char}',
                     background=lighten(palette.warning, 0.15),
@@ -140,6 +147,13 @@ mouse = [
          start=lazy.window.get_size()),
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
+
+
+# Hooks
+@hook.subscribe.startup_complete
+def autostart():
+    home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
+    subprocess.call(['bash',  home])
 
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: List
