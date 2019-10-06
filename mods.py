@@ -1,5 +1,9 @@
 from colorsys import rgb_to_hls, hls_to_rgb
 from types import SimpleNamespace
+from libqtile.widget import base
+from libqtile import bar
+from subprocess import Popen, PIPE
+from threading import Timer
 
 
 # Color helpers
@@ -43,3 +47,36 @@ palette = SimpleNamespace(
     background='#303030',
     foreground='#909090',
 )
+
+
+def execute(*args):
+    with Popen(args, stdout=PIPE) as process:
+        return process.stdout.read().decode('utf-8')
+    
+
+def delay(fn, secs):
+    Timer(secs, fn).start()
+
+
+class Volume(base._TextBox):
+    
+    def __init__(self, **config):
+        config['name'] = 'mod_volume'
+        super(Volume, self).__init__('#V#', bar.CALCULATED, **config)
+        self._show_volume()
+    
+    def _show_volume(self):
+        vol = int(execute('pamixer', '--get-volume'))
+        self.text =  str(vol) + '▮'*(vol//20) + '▯'*(5 - vol//20)
+        self.draw()
+
+    def cmd_volume_up(self):
+        execute('pamixer', '-i', '5')
+        self._show_volume()
+    
+    def cmd_volume_down(self):
+        execute('pamixer', '-d', '5')
+        self._show_volume()
+    
+
+    

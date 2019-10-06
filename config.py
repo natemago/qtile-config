@@ -33,7 +33,7 @@ from libqtile import layout, bar, widget, hook
 
 from typing import List  # noqa: F401
 
-from mods import lighten, darken, palette
+from mods import lighten, darken, palette, Volume
 
 mod = "mod4"
 alt = 'mod1'
@@ -68,6 +68,9 @@ keys = [
     # Custom commands/apps
     Key([mod], "space", lazy.spawn("rofi -show run")),
     Key([mod], "Return", lazy.spawn("terminator")),
+
+    Key([mod], 'u', lazy.widget['mod_volume'].volume_up()),
+    Key([mod], 'd', lazy.widget['mod_volume'].volume_down())
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -120,7 +123,7 @@ screens = [
                 #widget.KeyboardKbdd(
                 #    configured_keyboards = ['us', 'mk'],
                 #),
-                widget.Volume(),
+                Volume(),
                 widget.Battery(
                     format='⚡ {percent:2.0%}{char}',
                     background=lighten(palette.warning, 0.15),
