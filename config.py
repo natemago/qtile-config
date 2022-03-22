@@ -67,12 +67,16 @@ keys = [
     Key([alt], 'Tab', lazy.layout.next()),
     
     # Move windows up or down in current stack
-    Key([mod, alt], "Up", lazy.layout.shuffle_down()),
-    Key([mod, alt], "Down", lazy.layout.shuffle_up()),
+    Key([mod, alt], "Up", lazy.layout.shuffle_up()),
+    Key([mod, alt], "Down", lazy.layout.shuffle_down()),
     Key([mod, alt], "m", lazy.layout.swap_main()),
+    Key([mod, alt], "o", lazy.layout.maximize()),
+    Key([mod, alt], "g", lazy.layout.grow()),
+    Key([mod, alt], "s", lazy.layout.shrink()),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout()),
+    Key([mod, 'shift'], "Tab", lazy.prev_layout()),
 
     # Groups
     Key([ctrl, alt], 'Right', lazy.screen.next_group()),
@@ -91,6 +95,8 @@ keys = [
 
     Key([mod], 'u', lazy.widget['mod_volume'].volume_up()),
     Key([mod], 'd', lazy.widget['mod_volume'].volume_down()),
+    Key([], 'XF86AudioRaiseVolume', lazy.widget['mod_volume'].volume_up()),
+    Key([], 'XF86AudioLowerVolume', lazy.widget['mod_volume'].volume_down()),
 
     # Keyboar Layout
     Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
@@ -115,9 +121,9 @@ layouts = [
         border_normal = palette.background,
         border_width = 2,
     ),
-    layout.Stack(
-        num_stacks = 1,
-    )
+    # layout.Stack(
+    #     num_stacks = 1,
+    # )
 ]
 
 widget_defaults = dict(

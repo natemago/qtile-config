@@ -6,6 +6,14 @@ from subprocess import Popen, PIPE
 from threading import Timer
 
 
+# SYM_ON =  '●'  # '▮'
+# SYM_OFF = '○'  # '▯'
+# SPKR_ON = '🔊'
+# SPKR_MUTED = '🔊'
+
+SPEAKER_LEVELS = '🔈🔉🔊'
+SPEAKER_MUTED = '🔇'
+
 # Color helpers
 def hex_to_rgb(hex):
     if not hex:
@@ -62,12 +70,29 @@ class Volume(base._TextBox):
     
     def __init__(self, **config):
         config['name'] = 'mod_volume'
+        config['font'] = 'Monospace'
+        config['markup'] = True
         super(Volume, self).__init__('#V#', bar.CALCULATED, **config)
         self._show_volume()
     
     def _show_volume(self):
         vol = int(execute('pamixer', '--get-volume'))
-        self.text =  str(vol) + ' ' + '▮'*(vol//20) + '▯'*(5 - vol//20)
+        print('vol::', vol, '  ', vol//(100//len(SPEAKER_LEVELS)))
+
+        speaker_level = vol//(100//len(SPEAKER_LEVELS))
+        if speaker_level == len(SPEAKER_LEVELS):
+            speaker_level = len(SPEAKER_LEVELS) - 1
+        
+        speaker_level = SPEAKER_LEVELS[speaker_level] if vol else SPEAKER_MUTED
+
+
+        # #self.text =  '[🔊 {:>3}'.format(str(vol)) + ' ' + SYM_ON*(vol//20) + SYM_OFF*(5 - vol//20) + ']'
+
+        self.text = '[{} {:>3} <span color="blue">B</span>]'.format(
+            speaker_level,
+            vol,
+        )
+
         self.draw()
 
     def cmd_volume_up(self):
