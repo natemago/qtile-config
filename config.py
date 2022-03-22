@@ -39,6 +39,25 @@ mod = "mod4"
 alt = 'mod1'
 ctrl = 'control'
 
+
+'''
+Command groups:
+
+ - Layout switching:
+    - next layout: mod+tab
+    - specific layout: mod + <letter>
+        - monad tall: mod + t
+        - max: mod + m
+        - tile (expose all): mod + e
+  - mod + alt - layout related window operations
+  - mod + <number> - goto groups
+  - mod + shift - send window to group
+  - mod + alt + left/right - move between groups
+
+
+'''
+
+
 keys = [
     # Switch between windows in current stack pane
     Key([alt], "Up", lazy.layout.up()),
@@ -67,10 +86,15 @@ keys = [
 
     # Custom commands/apps
     Key([mod], "space", lazy.spawn("rofi -show run")),
+    #Key([alt], "`", lazy.spawn("rofi -show window")),
     Key([mod], "Return", lazy.spawn("terminator")),
 
     Key([mod], 'u', lazy.widget['mod_volume'].volume_up()),
-    Key([mod], 'd', lazy.widget['mod_volume'].volume_down())
+    Key([mod], 'd', lazy.widget['mod_volume'].volume_down()),
+
+    # Keyboar Layout
+    Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
+    Key([alt], 'Shift_R', lazy.widget['keyboardlayout'].next_keyboard()),
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -90,6 +114,9 @@ layouts = [
         border_focus = palette.primary,
         border_normal = palette.background,
         border_width = 2,
+    ),
+    layout.Stack(
+        num_stacks = 1,
     )
 ]
 
@@ -115,14 +142,15 @@ screens = [
                     foreground=palette.foreground,
                     inactive=palette.foreground,
                     this_current_screen_border=palette.primary,
-                    margin_y=0,
+                    margin_y=2,
                 ),
                 widget.Prompt(),
                 widget.WindowName(),
+                widget.CurrentLayout(),
                 widget.Systray(),
-                #widget.KeyboardKbdd(
-                #    configured_keyboards = ['us', 'mk'],
-                #),
+                widget.KeyboardLayout(
+                   configured_keyboards = ['us', 'mk'],
+                ),
                 Volume(),
                 widget.Battery(
                     format='⚡ {percent:2.0%}{char}',
@@ -134,7 +162,7 @@ screens = [
                 ),
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
             ],
-            18,
+            20,
             **{
                 'background': palette.background,
             },
@@ -164,22 +192,22 @@ main = None
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(float_rules=[
-    {'wmclass': 'confirm'},
-    {'wmclass': 'dialog'},
-    {'wmclass': 'download'},
-    {'wmclass': 'error'},
-    {'wmclass': 'file_progress'},
-    {'wmclass': 'notification'},
-    {'wmclass': 'splash'},
-    {'wmclass': 'toolbar'},
-    {'wmclass': 'confirmreset'},  # gitk
-    {'wmclass': 'makebranch'},  # gitk
-    {'wmclass': 'maketag'},  # gitk
-    {'wname': 'branchdialog'},  # gitk
-    {'wname': 'pinentry'},  # GPG key password entry
-    {'wmclass': 'ssh-askpass'},  # ssh-askpass
-])
+# floating_layout = layout.Floating(float_rules=[
+#     {'wmclass': 'confirm'},
+#     {'wmclass': 'dialog'},
+#     {'wmclass': 'download'},
+#     {'wmclass': 'error'},
+#     {'wmclass': 'file_progress'},
+#     {'wmclass': 'notification'},
+#     {'wmclass': 'splash'},
+#     {'wmclass': 'toolbar'},
+#     {'wmclass': 'confirmreset'},  # gitk
+#     {'wmclass': 'makebranch'},  # gitk
+#     {'wmclass': 'maketag'},  # gitk
+#     {'wname': 'branchdialog'},  # gitk
+#     {'wname': 'pinentry'},  # GPG key password entry
+#     {'wmclass': 'ssh-askpass'},  # ssh-askpass
+# ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 

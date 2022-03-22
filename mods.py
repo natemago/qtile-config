@@ -67,7 +67,7 @@ class Volume(base._TextBox):
     
     def _show_volume(self):
         vol = int(execute('pamixer', '--get-volume'))
-        self.text =  str(vol) + '▮'*(vol//20) + '▯'*(5 - vol//20)
+        self.text =  str(vol) + ' ' + '▮'*(vol//20) + '▯'*(5 - vol//20)
         self.draw()
 
     def cmd_volume_up(self):
