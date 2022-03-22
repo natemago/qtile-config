@@ -2,14 +2,10 @@ from colorsys import rgb_to_hls, hls_to_rgb
 from types import SimpleNamespace
 from libqtile.widget import base
 from libqtile import bar
+from libqtile.log_utils import logger
 from subprocess import Popen, PIPE
 from threading import Timer
-
-
-# SYM_ON =  '●'  # '▮'
-# SYM_OFF = '○'  # '▯'
-# SPKR_ON = '🔊'
-# SPKR_MUTED = '🔊'
+from functools import wraps
 
 SPEAKER_LEVELS = '🔈🔉🔊'
 SPEAKER_MUTED = '🔇'
@@ -57,6 +53,20 @@ palette = SimpleNamespace(
 )
 
 
+def log_error(fn):
+
+    @wraps(fn)
+    def _wrap_logged(*args, **kwargs):
+        try:
+            return fn(*args, *kwargs)
+        except Exception as e:
+            logger.exception(e)
+            raise e
+    
+    return _wrap_logged
+
+
+@log_error
 def execute(*args):
     with Popen(args, stdout=PIPE) as process:
         return process.stdout.read().decode('utf-8')
@@ -72,36 +82,80 @@ class Volume(base._TextBox):
         config['name'] = 'mod_volume'
         config['font'] = 'Monospace'
         config['markup'] = True
+        config['mouse_callbacks'] = {
+            'Button1': self.show_audio_mixer
+        }
         super(Volume, self).__init__('#V#', bar.CALCULATED, **config)
+        
+        self.speaker_leves = config.get('speaker_level_symbols', SPEAKER_LEVELS)
+        self.speaker_muted = config.get('speaker_muted_symbol', SPEAKER_MUTED)
+        self.frames = config.get('frame_symbols', '[]')
+        self.frame_color = config.get('frame_color', palette.foreground)
+        self.frame_background_color = config.get('frame_background_color', palette.background)
+        self.show_frame = config.get('show_frame', True)
+        self.audio_mixer_command = config.get('audio_mixer_command', 'pavucontrol')
+
         self._show_volume()
     
     def _show_volume(self):
         vol = int(execute('pamixer', '--get-volume'))
-        print('vol::', vol, '  ', vol//(100//len(SPEAKER_LEVELS)))
 
-        speaker_level = vol//(100//len(SPEAKER_LEVELS))
-        if speaker_level == len(SPEAKER_LEVELS):
-            speaker_level = len(SPEAKER_LEVELS) - 1
+        speaker_level = vol//(100//len(self.speaker_leves))
+        if speaker_level == len(self.speaker_leves):
+            speaker_level = len(self.speaker_leves) - 1
         
-        speaker_level = SPEAKER_LEVELS[speaker_level] if vol else SPEAKER_MUTED
+        if not vol or self._is_muted():
+            speaker_level = '<span color="{}">{}</span>'.format(palette.danger, self.speaker_muted)
+        else:
+            speaker_level = self.speaker_leves[speaker_level]
 
+        txt_format = '{} {:>3}'.format(speaker_level, vol)
+        if self.show_frame:
+            txt_format = '{}{}{}'.format(self.frames[0], txt_format, self.frames[1])
 
-        # #self.text =  '[🔊 {:>3}'.format(str(vol)) + ' ' + SYM_ON*(vol//20) + SYM_OFF*(5 - vol//20) + ']'
-
-        self.text = '[{} {:>3} <span color="blue">B</span>]'.format(
-            speaker_level,
-            vol,
-        )
+        self.text = txt_format
 
         self.draw()
 
+    @log_error
+    def show_audio_mixer(self, *args, **kwargs):
+        print('::::show_audio_mixer: ', self.audio_mixer_command)
+        #execute(self.audio_mixer_command)
+        import subprocess
+        subprocess.call(self.audio_mixer_command)
+
+    @log_error
     def cmd_volume_up(self):
         execute('pamixer', '-i', '5')
         self._show_volume()
     
+    @log_error
     def cmd_volume_down(self):
         execute('pamixer', '-d', '5')
         self._show_volume()
     
 
+    def _is_muted(self):
+        return execute('pamixer', '--get-mute').strip().lower() == 'true'
+
+    @log_error
+    def cmd_mute(self):
+        if self._is_muted():
+            pass
+        execute('pamixer', '--mute')
+        self._show_volume()
+
+    @log_error
+    def cmd_unmute(self):
+        if not self._is_muted():
+            pass
+        execute('pamixer', '--unmute')
+        self._show_volume()
+
+    @log_error
+    def cmd_toggle_muted(self):
+        if self._is_muted():
+            self.cmd_unmute()
+        else:
+            self.cmd_mute()
     

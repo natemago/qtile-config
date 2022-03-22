@@ -27,13 +27,14 @@
 import os
 import subprocess
 
-from libqtile.config import Key, Screen, Group, Drag, Click
+from libqtile.config import Key, Screen, Group, Drag, Click, Match
 from libqtile.command import lazy
 from libqtile import layout, bar, widget, hook
 
 from typing import List  # noqa: F401
 
-from mods import lighten, darken, palette, Volume
+from mods import lighten, darken, palette, Volume, log_error, execute
+
 
 mod = "mod4"
 alt = 'mod1'
@@ -97,6 +98,7 @@ keys = [
     Key([mod], 'd', lazy.widget['mod_volume'].volume_down()),
     Key([], 'XF86AudioRaiseVolume', lazy.widget['mod_volume'].volume_up()),
     Key([], 'XF86AudioLowerVolume', lazy.widget['mod_volume'].volume_down()),
+    Key([], 'XF86AudioMute', lazy.widget['mod_volume'].toggle_muted()),
 
     # Keyboar Layout
     Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
@@ -104,7 +106,6 @@ keys = [
 ]
 
 groups = [Group(i) for i in "12345678"]
-
 for i in groups:
     keys.extend([
         # mod1 + letter of group = switch to group
@@ -115,7 +116,7 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Max(),
+    layout.Max(),    
     layout.MonadTall(
         border_focus = palette.primary,
         border_normal = palette.background,
@@ -185,9 +186,9 @@ mouse = [
     Click([mod], "Button2", lazy.window.bring_to_front())
 ]
 
-
 # Hooks
 @hook.subscribe.startup_complete
+@log_error
 def autostart():
     home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
     subprocess.call(['bash',  home])
@@ -198,22 +199,16 @@ main = None
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-# floating_layout = layout.Floating(float_rules=[
-#     {'wmclass': 'confirm'},
-#     {'wmclass': 'dialog'},
-#     {'wmclass': 'download'},
-#     {'wmclass': 'error'},
-#     {'wmclass': 'file_progress'},
-#     {'wmclass': 'notification'},
-#     {'wmclass': 'splash'},
-#     {'wmclass': 'toolbar'},
-#     {'wmclass': 'confirmreset'},  # gitk
-#     {'wmclass': 'makebranch'},  # gitk
-#     {'wmclass': 'maketag'},  # gitk
-#     {'wname': 'branchdialog'},  # gitk
-#     {'wname': 'pinentry'},  # GPG key password entry
-#     {'wmclass': 'ssh-askpass'},  # ssh-askpass
-# ])
+floating_layout = layout.Floating(float_rules=[
+    # Run the utility of `xprop` to see the wm class and name of an X client.
+        *layout.Floating.default_float_rules,
+        Match(wm_class="confirmreset"),  # gitk
+        Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="maketag"),  # gitk
+        Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(title="branchdialog"),  # gitk
+        Match(title="pinentry"),  # GPG key password entry
+])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 
