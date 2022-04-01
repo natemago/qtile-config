@@ -30,6 +30,7 @@ import subprocess
 from libqtile.config import Key, Screen, Group, Drag, Click, Match
 from libqtile.command import lazy
 from libqtile import layout, bar, widget, hook
+from libqtile.widget.backlight import ChangeDirection
 
 from typing import List  # noqa: F401
 
@@ -80,11 +81,9 @@ keys = [
     Key([mod], "Tab", lazy.next_layout()),
     Key([mod, 'shift'], "Tab", lazy.prev_layout()),
 
-
     # Groups
     Key([ctrl, alt], 'Right', lazy.screen.next_group()),
     Key([ctrl, alt], 'Left', lazy.screen.prev_group()),
-
     
     # Qtile commands
     Key([mod, ctrl], "r", lazy.restart()),
@@ -97,12 +96,12 @@ keys = [
     Key([alt], "grave", lazy.spawn("rofi -show window")),
     Key([mod], "Return", lazy.spawn("terminator")),
 
-    Key([mod], 'u', lazy.widget['mod_volume'].volume_up()),
-    Key([mod], 'd', lazy.widget['mod_volume'].volume_down()),
     Key([], 'XF86AudioRaiseVolume', lazy.widget['mod_volume'].volume_up()),
     Key([], 'XF86AudioLowerVolume', lazy.widget['mod_volume'].volume_down()),
     Key([], 'XF86AudioMute', lazy.widget['mod_volume'].toggle_muted()),
     Key([], 'XF86AudioMicMute', lazy.widget['mod_volume'].toggle_mic_muted()),
+    Key([], 'XF86MonBrightnessDown', lazy.widget['backlight'].change_backlight(ChangeDirection.DOWN)),
+    Key([], 'XF86MonBrightnessUp', lazy.widget['backlight'].change_backlight(ChangeDirection.UP)),
 
     # Keyboar Layout
     Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
@@ -126,6 +125,7 @@ layouts = [
         border_normal = palette.background,
         border_width = 2,
     ),
+    layout.TreeTab(),
 ]
 
 widget_defaults = dict(
@@ -152,27 +152,38 @@ screens = [
                     this_current_screen_border=palette.primary,
                     margin_y=2,
                 ),
-                widget.Prompt(),
                 widget.WindowName(),
-                widget.CurrentLayout(),
                 widget.Systray(),
-                widget.KeyboardLayout(
-                   configured_keyboards = ['us', 'mk'],
+                widget.CurrentLayout(
+                    fmt='[ ◫ {} ]',
                 ),
-                Volume(),
+               
                 widget.Battery(
-                    format='⚡ {percent:2.0%}{char}',
-                    background=lighten(palette.warning, 0.15),
-                    foreground=darken(palette.foreground, 0.5),
+                    format='[⚡ {percent:2.0%}{char}]',
                     charge_char='↑',
                     discharge_char='↓',
                     empty_char='☠'
                 ),
-                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
+                widget.Backlight(
+                    backlight_name='intel_backlight',
+                    change_command='brightnessctl s {0}%',
+                    step=5,
+                    format='[💡 {percent:2.0%}]',
+                ),
+                Volume(),
+                widget.KeyboardLayout(
+                   configured_keyboards = ['us', 'mk'],
+                   fmt='[⌨  {}]',
+                ),
+                widget.Clock(
+                    format='[ %Y-%m-%d %a %I:%M %p ]',
+                    foreground=lighten(palette.warning, 0.5),
+                ),
             ],
             20,
             **{
                 'background': palette.background,
+                'fontsize': 20,
             },
         ),
     ),
