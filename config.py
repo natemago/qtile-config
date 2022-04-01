@@ -66,6 +66,7 @@ keys = [
     Key([alt], "Left", lazy.layout.left()),
     Key([alt], "Right", lazy.layout.right()),
     Key([alt], 'Tab', lazy.layout.next()),
+    Key([alt, 'shift'], 'Tab', lazy.layout.previous()),
     
     # Move windows up or down in current stack
     Key([mod, alt], "Up", lazy.layout.shuffle_up()),
@@ -79,6 +80,7 @@ keys = [
     Key([mod], "Tab", lazy.next_layout()),
     Key([mod, 'shift'], "Tab", lazy.prev_layout()),
 
+
     # Groups
     Key([ctrl, alt], 'Right', lazy.screen.next_group()),
     Key([ctrl, alt], 'Left', lazy.screen.prev_group()),
@@ -88,10 +90,11 @@ keys = [
     Key([mod, ctrl], "r", lazy.restart()),
     Key([mod, ctrl], "q", lazy.shutdown()),
     Key([mod], "w", lazy.window.kill()),
+    Key([ctrl, alt], "l", lazy.spawn("i3lock --color 000000")),
 
     # Custom commands/apps
     Key([mod], "space", lazy.spawn("rofi -show run")),
-    #Key([alt], "`", lazy.spawn("rofi -show window")),
+    Key([alt], "grave", lazy.spawn("rofi -show window")),
     Key([mod], "Return", lazy.spawn("terminator")),
 
     Key([mod], 'u', lazy.widget['mod_volume'].volume_up()),
@@ -99,6 +102,7 @@ keys = [
     Key([], 'XF86AudioRaiseVolume', lazy.widget['mod_volume'].volume_up()),
     Key([], 'XF86AudioLowerVolume', lazy.widget['mod_volume'].volume_down()),
     Key([], 'XF86AudioMute', lazy.widget['mod_volume'].toggle_muted()),
+    Key([], 'XF86AudioMicMute', lazy.widget['mod_volume'].toggle_mic_muted()),
 
     # Keyboar Layout
     Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
@@ -122,9 +126,6 @@ layouts = [
         border_normal = palette.background,
         border_width = 2,
     ),
-    # layout.Stack(
-    #     num_stacks = 1,
-    # )
 ]
 
 widget_defaults = dict(
@@ -193,6 +194,12 @@ def autostart():
     home = os.path.expanduser('~/.config/qtile/scripts/autostart.sh')
     subprocess.call(['bash',  home])
 
+#@hook.subscribe.startup
+#def startup():
+#    execute("xrandr", "--output", "DP-1", "--primary")
+#    execute("xrandr", "--output", "eDP-1", "--off")
+
+
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: List
 main = None
@@ -208,6 +215,7 @@ floating_layout = layout.Floating(float_rules=[
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
+        Match(wm_class='pavucontrol'),
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"

@@ -1,6 +1,7 @@
 from colorsys import rgb_to_hls, hls_to_rgb
 from types import SimpleNamespace
 from libqtile.widget import base
+from libqtile.command import lazy
 from libqtile import bar
 from libqtile.log_utils import logger
 from subprocess import Popen, PIPE
@@ -9,6 +10,7 @@ from functools import wraps
 
 SPEAKER_LEVELS = '🔈🔉🔊'
 SPEAKER_MUTED = '🔇'
+MIC_MUTED = '🎤'
 
 # Color helpers
 def hex_to_rgb(hex):
@@ -94,6 +96,7 @@ class Volume(base._TextBox):
         self.frame_background_color = config.get('frame_background_color', palette.background)
         self.show_frame = config.get('show_frame', True)
         self.audio_mixer_command = config.get('audio_mixer_command', 'pavucontrol')
+        self.mic_muted = config.get('mic_muted', MIC_MUTED)
 
         self._show_volume()
     
@@ -109,7 +112,16 @@ class Volume(base._TextBox):
         else:
             speaker_level = self.speaker_leves[speaker_level]
 
+        mic_muted = self._is_mic_muted()
+
         txt_format = '{} {:>3}'.format(speaker_level, vol)
+
+        if mic_muted:
+            txt_format = '{} {}'.format(
+                '<span color="{}">{}</span>'.format(palette.danger, self.mic_muted),
+                txt_format,
+            )
+
         if self.show_frame:
             txt_format = '{}{}{}'.format(self.frames[0], txt_format, self.frames[1])
 
@@ -120,9 +132,11 @@ class Volume(base._TextBox):
     @log_error
     def show_audio_mixer(self, *args, **kwargs):
         print('::::show_audio_mixer: ', self.audio_mixer_command)
-        #execute(self.audio_mixer_command)
-        import subprocess
-        subprocess.call(self.audio_mixer_command)
+        from threading import Thread
+        from subprocess import run
+
+        thr = Thread(target=lambda: run(self.audio_mixer_command, shell=True))
+        thr.start()
 
     @log_error
     def cmd_volume_up(self):
@@ -137,6 +151,9 @@ class Volume(base._TextBox):
 
     def _is_muted(self):
         return execute('pamixer', '--get-mute').strip().lower() == 'true'
+    
+    def _is_mic_muted(self):
+        return execute('pamixer', '--default-source', '--get-mute').strip().lower() == 'true'
 
     @log_error
     def cmd_mute(self):
@@ -151,6 +168,20 @@ class Volume(base._TextBox):
             pass
         execute('pamixer', '--unmute')
         self._show_volume()
+    
+    @log_error
+    def cmd_mic_mute(self):
+        if self._is_mic_muted():
+            pass
+        execute('pamixer', '--default-source', '--mute')
+        self._show_volume()
+
+    @log_error
+    def cmd_mic_unmute(self):
+        if not self._is_mic_muted():
+            pass
+        execute('pamixer', '--default-source', '--unmute')
+        self._show_volume()
 
     @log_error
     def cmd_toggle_muted(self):
@@ -158,4 +189,11 @@ class Volume(base._TextBox):
             self.cmd_unmute()
         else:
             self.cmd_mute()
+    
+    @log_error
+    def cmd_toggle_mic_muted(self):
+        if self._is_mic_muted():
+            self.cmd_mic_unmute()
+        else:
+            self.cmd_mic_mute()
     
