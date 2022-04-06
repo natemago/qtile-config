@@ -66,8 +66,8 @@ keys = [
     Key([alt], "Down", lazy.layout.down()),
     Key([alt], "Left", lazy.layout.left()),
     Key([alt], "Right", lazy.layout.right()),
-    Key([alt], 'Tab', lazy.layout.next()),
-    Key([alt, 'shift'], 'Tab', lazy.layout.previous()),
+    Key(['shift'], 'Tab', lazy.layout.next()),
+    #Key([alt, 'shift'], 'Tab', lazy.layout.previous()),
     
     # Move windows up or down in current stack
     Key([mod, alt], "Up", lazy.layout.shuffle_up()),
@@ -90,6 +90,9 @@ keys = [
     Key([mod, ctrl], "q", lazy.shutdown()),
     Key([mod], "w", lazy.window.kill()),
     Key([ctrl, alt], "l", lazy.spawn("i3lock --color 000000")),
+    Key([mod, ctrl], "s", lazy.spawn("mons -s")),
+    Key([mod, ctrl], "p", lazy.spawn("mons -o")),
+
 
     # Custom commands/apps
     Key([mod], "space", lazy.spawn("rofi -show run")),
@@ -156,24 +159,30 @@ screens = [
                 widget.Systray(),
                 widget.CurrentLayout(
                     fmt='[ ◫ {} ]',
+                    background=darken(palette.info, 0.4),
                 ),
                
                 widget.Battery(
                     format='[⚡ {percent:2.0%}{char}]',
                     charge_char='↑',
                     discharge_char='↓',
-                    empty_char='☠'
+                    empty_char='☠',
+                    background=darken(palette.info, 0.6),
                 ),
                 widget.Backlight(
                     backlight_name='intel_backlight',
                     change_command='brightnessctl s {0}%',
                     step=5,
                     format='[💡 {percent:2.0%}]',
+                    background=darken(palette.info, 0.4),
                 ),
-                Volume(),
+                Volume(
+                    background=darken(palette.info, 0.4),
+                ),
                 widget.KeyboardLayout(
                    configured_keyboards = ['us', 'mk'],
                    fmt='[⌨  {}]',
+                   background=darken(palette.info, 0.4),
                 ),
                 widget.Clock(
                     format='[ %Y-%m-%d %a %I:%M %p ]',
