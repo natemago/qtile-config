@@ -31,10 +31,11 @@ from libqtile.config import Key, Screen, Group, Drag, Click, Match
 from libqtile.command import lazy
 from libqtile import layout, bar, widget, hook
 from libqtile.widget.backlight import ChangeDirection
+from libqtile.log_utils import logger
 
 from typing import List  # noqa: F401
 
-from mods import lighten, darken, palette, Volume, log_error, execute
+from mods import lighten, darken, palette, Volume, log_error, execute, ModKeyboardLayout
 
 
 mod = "mod4"
@@ -107,8 +108,8 @@ keys = [
     Key([], 'XF86MonBrightnessUp', lazy.widget['backlight'].change_backlight(ChangeDirection.UP)),
 
     # Keyboar Layout
-    Key([alt], 'Shift_L', lazy.widget['keyboardlayout'].next_keyboard()),
-    Key([alt], 'Shift_R', lazy.widget['keyboardlayout'].next_keyboard()),
+    Key([alt], 'Shift_L', lazy.widget['modkeyboardlayout'].next_keyboard()),
+    Key([alt], 'Shift_R', lazy.widget['modkeyboardlayout'].next_keyboard()),
 ]
 
 groups = [Group(i) for i in "12345678"]
@@ -140,6 +141,12 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
+keyboardLayoutWidget = ModKeyboardLayout(
+    configured_keyboards = ['us', 'mk'],
+    fmt='[⌨  {}]',
+    background=darken(palette.info, 0.4),
+)
+
 screens = [
     Screen(
         top=bar.Bar(
@@ -155,7 +162,7 @@ screens = [
                     this_current_screen_border=palette.primary,
                     margin_y=2,
                 ),
-                widget.WindowName(),
+                widget.TaskList(),
                 widget.Systray(),
                 widget.CurrentLayout(
                     fmt='[ ◫ {} ]',
@@ -179,11 +186,8 @@ screens = [
                 Volume(
                     background=darken(palette.info, 0.4),
                 ),
-                widget.KeyboardLayout(
-                   configured_keyboards = ['us', 'mk'],
-                   fmt='[⌨  {}]',
-                   background=darken(palette.info, 0.4),
-                ),
+                #widget.KeyboardLayout(
+                keyboardLayoutWidget,
                 widget.Clock(
                     format='[ %Y-%m-%d %a %I:%M %p ]',
                     foreground=lighten(palette.warning, 0.5),
@@ -218,6 +222,13 @@ def autostart():
 #def startup():
 #    execute("xrandr", "--output", "DP-1", "--primary")
 #    execute("xrandr", "--output", "eDP-1", "--off")
+
+@hook.subscribe.client_focus
+@log_error
+def on_window_focus(client):
+    logger.error('client -> {}'.format(lazy.widget['modkeyboardlayout']))
+    keyboardLayoutWidget.cmd_window_focus(client)
+    logger.error('----------------------------------------')
 
 
 dgroups_key_binder = None

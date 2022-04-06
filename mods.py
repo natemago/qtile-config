@@ -1,6 +1,6 @@
 from colorsys import rgb_to_hls, hls_to_rgb
 from types import SimpleNamespace
-from libqtile.widget import base
+from libqtile.widget import base, KeyboardLayout
 from libqtile.command import lazy
 from libqtile import bar
 from libqtile.log_utils import logger
@@ -197,3 +197,34 @@ class Volume(base._TextBox):
         else:
             self.cmd_mic_mute()
     
+
+class ModKeyboardLayout(KeyboardLayout):
+
+    def __init__(self, **config):
+        super().__init__(**config)
+        self.focused_window = None
+    
+    def cmd_window_focus(self, window):
+        logger.error("************************")
+        self.focused_window = window
+
+        logger.error('Window: {}'.format(window))
+        if hasattr(window, 'keyboard') and window.keyboard:
+            if window.keyboard == self.backend.get_keyboard():
+                return
+            logger.error('Has keyboard -> {}'.format(window.keyboard))
+            self.backend.set_keyboard(window.keyboard, self.option)
+            self.tick()
+        elif self.configured_keyboards:
+            if self.configured_keyboards[0] == self.backend.get_keyboard():
+                return
+            logger.error('Has default keyboard -> {}'.format(self.configured_keyboards[0]))
+            self.backend.set_keyboard(self.configured_keyboards[0], self.option)
+            self.tick()
+
+    
+    def next_keyboard(self):
+        super().next_keyboard()
+        if self.focused_window:
+            self.focused_window.keyboard = self.backend.get_keyboard()
+
