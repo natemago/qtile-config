@@ -1,3 +1,5 @@
+#alttab -fg "#52baff" -bg "#4a4a4a" -frame "#52baff" -t 128x150 -i 127x64 &
+#sleep 3 &&
 # Keyboard layout switching
 # kbdd 
 # Set background
@@ -14,6 +16,7 @@ nm-applet &
 # Parcellite
 parcellite &
 
+terminator &
 # Sane alt-tab behaviour
-(sleep 5 && alttab -fg "#52baff" -bg "#4a4a4a" -frame "#52baff" -t 128x150 -i 127x64) &
+(sleep 3 && alttab -fg "#52baff" -bg "#4a4a4a" -frame "#52baff" -t 128x150 -i 127x64) &
 

@@ -10,7 +10,7 @@ from functools import wraps
 
 SPEAKER_LEVELS = '🔈🔉🔊'
 SPEAKER_MUTED = '🔇'
-MIC_MUTED = '🎤'
+MIC_MUTED = '🎙'
 
 # Color helpers
 def hex_to_rgb(hex):
@@ -43,15 +43,26 @@ def lighten(color, factor=0.1):
 def darken(color, factor=0.1):
     return adjust_color_lightness(color, 1 - factor)
 
+# palette = SimpleNamespace(
+#     primary='#2c5182',
+#     secondary='#3a2d68',
+#     danger='#963239',
+#     warning='#9d9340',
+#     success='#277a2b',
+#     info='#3a2d68',
+#     background='#303030',
+#     foreground='#a0a0a0',
+# )
+
 palette = SimpleNamespace(
-    primary='#2c5182',
-    secondary='#3a2d68',
-    danger='#963239',
-    warning='#9d9340',
-    success='#277a2b',
-    info='#3a2d68',
-    background='#303030',
-    foreground='#909090',
+    primary='#e936ff',
+    secondary='#5bbab4',
+    danger='#bd0300',
+    warning='#ff5200',
+    success='#00deff',
+    info='#0088ff',
+    background='#4f4350',
+    foreground='#b5a7b6',
 )
 
 
