@@ -69,7 +69,7 @@ keys = [
     Key([alt], "Right", lazy.layout.right()),
     Key(['shift'], 'Tab', lazy.layout.next()),
     #Key([alt, 'shift'], 'Tab', lazy.layout.previous()),
-    
+
     # Move windows up or down in current stack
     Key([mod, alt], "Up", lazy.layout.shuffle_up()),
     Key([mod, alt], "Down", lazy.layout.shuffle_down()),
@@ -85,7 +85,7 @@ keys = [
     # Groups
     Key([ctrl, alt], 'Right', lazy.screen.next_group()),
     Key([ctrl, alt], 'Left', lazy.screen.prev_group()),
-    
+
     # Qtile commands
     Key([mod, ctrl], "r", lazy.restart()),
     Key([mod, ctrl], "q", lazy.shutdown()),
@@ -123,13 +123,17 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Max(),    
+    layout.Max(),
     layout.MonadTall(
         border_focus = palette.primary,
         border_normal = palette.background,
-        border_width = 2,
+        border_width = 1,
     ),
-    layout.TreeTab(),
+    layout.MonadWide(
+        border_focus = palette.primary,
+        border_normal = palette.background,
+        border_width = 1,
+    ),
 ]
 
 widget_defaults = dict(
@@ -145,6 +149,7 @@ keyboardLayoutWidget = ModKeyboardLayout(
     configured_keyboards = ['us', 'mk'],
     fmt='[⌨  {}]',
     background=darken(palette.background, 0.5),
+    font='monospace bold',
 )
 
 screens = [
@@ -182,7 +187,7 @@ screens = [
                     size_percent=100,
                     padding=5,
                     linewidth=0,
-                    background=palette.background,  
+                    background=palette.background,
                     foreground=darken(palette.background, 0.5),
                 ),
                 widget.CurrentLayoutIcon(
@@ -208,11 +213,11 @@ screens = [
                     step=5,
                     format='[💡 {percent:2.0%}]',
                     background=darken(palette.background, 0.5),
-                    font='monospace',
+                    font='monospace bold',
                 ),
                 Volume(
                     background=darken(palette.background, 0.5),
-                    font='monospace',
+                    font='monospace bold',
                 ),
                 #widget.KeyboardLayout(
                 keyboardLayoutWidget,
@@ -220,6 +225,7 @@ screens = [
                     format='[ %Y-%m-%d %a %I:%M:%S %p ]',
                     foreground=palette.info,
                     background=darken(palette.background, 0.5),
+                    font='monospace bold',
                 ),
             ],
             20,
