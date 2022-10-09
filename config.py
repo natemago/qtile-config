@@ -100,6 +100,9 @@ keys = [
     Key([alt], "grave", lazy.spawn("rofi -show window")),
     Key([mod], "Return", lazy.spawn("terminator")),
 
+    # Show help
+    Key([mod], "h", lazy.spawn("rofi -show 'Key Bindings' -modes \"Key Bindings:/home/pavle/.config/qtile/keybindings.sh\"")),
+
     Key([], 'XF86AudioRaiseVolume', lazy.widget['mod_volume'].volume_up()),
     Key([], 'XF86AudioLowerVolume', lazy.widget['mod_volume'].volume_down()),
     Key([], 'XF86AudioMute', lazy.widget['mod_volume'].toggle_muted()),
@@ -152,6 +155,25 @@ keyboardLayoutWidget = ModKeyboardLayout(
     font='monospace bold',
 )
 
+def parse_text(sep, sel, max_width):
+
+    def _parse_text(text):
+        windows = text.split(sep)
+        result = []
+        for win in windows:
+            if len(win) > max_width:
+                if win.startswith(sel[0]):
+                    win = win.removeprefix(sel[0]).removesuffix(sel[1])
+                    if len(win) > max_width:
+                        win = win[0:max_width-3] + '...'
+                    win = win.join(sel)
+                else:
+                    win = win[0:max_width-3] + '...'
+            result.append(win)
+        return sep.join(result)
+    
+    return _parse_text
+
 screens = [
     Screen(
         top=bar.Bar(
@@ -167,20 +189,28 @@ screens = [
                     this_current_screen_border=palette.primary,
                     margin_y=2,
                 ),
-                widget.TaskList(
+                # widget.TaskList(
+                #     background=palette.background,
+                #     highlight_method='block',
+                #     border=darken(palette.primary, 0.4),
+                #     foreground=lighten(palette.foreground, 0.5),
+                #     borderwidth=0,
+                #     max_title_width=200,
+                #     rounded=False,
+                #     urgent_alert_method='block',
+                #     urgent_border=palette.danger,
+                #     #padding_y=0,
+                #     margin_y=0,
+                #     icon_size=14,
+                #     font='monospace',
+                # ),
+                widget.WindowTabs(
                     background=palette.background,
-                    highlight_method='block',
-                    border=darken(palette.primary, 0.4),
                     foreground=lighten(palette.foreground, 0.5),
-                    borderwidth=0,
-                    max_title_width=200,
-                    rounded=False,
-                    urgent_alert_method='block',
-                    urgent_border=palette.danger,
-                    #padding_y=0,
-                    margin_y=0,
-                    icon_size=14,
                     font='monospace',
+                    separator=' || ',
+                    selected=('<span color="black" bgcolor="#feecee">', '</span>'),
+                    parse_text=parse_text(' || ', ('<span color="black" bgcolor="#feecee">', '</span>'), 35),
                 ),
                 widget.Systray(),
                 widget.Sep(
@@ -262,9 +292,7 @@ def autostart():
 @hook.subscribe.client_focus
 @log_error
 def on_window_focus(client):
-    logger.error('client -> {}'.format(lazy.widget['modkeyboardlayout']))
     keyboardLayoutWidget.cmd_window_focus(client)
-    logger.error('----------------------------------------')
 
 
 dgroups_key_binder = None

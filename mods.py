@@ -142,7 +142,6 @@ class Volume(base._TextBox):
 
     @log_error
     def show_audio_mixer(self, *args, **kwargs):
-        print('::::show_audio_mixer: ', self.audio_mixer_command)
         from threading import Thread
         from subprocess import run
 
@@ -216,20 +215,16 @@ class ModKeyboardLayout(KeyboardLayout):
         self.focused_window = None
     
     def cmd_window_focus(self, window):
-        logger.error("************************")
         self.focused_window = window
 
-        logger.error('Window: {}'.format(window))
         if hasattr(window, 'keyboard') and window.keyboard:
             if window.keyboard == self.backend.get_keyboard():
                 return
-            logger.error('Has keyboard -> {}'.format(window.keyboard))
             self.backend.set_keyboard(window.keyboard, self.option)
             self.tick()
         elif self.configured_keyboards:
             if self.configured_keyboards[0] == self.backend.get_keyboard():
                 return
-            logger.error('Has default keyboard -> {}'.format(self.configured_keyboards[0]))
             self.backend.set_keyboard(self.configured_keyboards[0], self.option)
             self.tick()
 
