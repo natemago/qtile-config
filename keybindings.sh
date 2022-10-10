@@ -2,10 +2,10 @@
 
 declare -a obds=()
 obds+=("-- Switch between windows --" "ignore")
-obds+=("[Alt ↑] Go to window above" "qtile cmd-obj -o layout up")
-obds+=("[Alt ↓] Go to window down" "qtile cmd-obj -o layout down")
-obds+=("[Alt ←] Go to window left" "qtile cmd-obj -o layout left")
-obds+=("[Alt →] Go to window right" "qtile cmd-obj -o layout right")
+obds+=("[Alt ↑] Focus window above" "qtile cmd-obj -o layout -f up")
+obds+=("[Alt ↓] Focus window down" "qtile cmd-obj -o layout -f down")
+obds+=("[Alt ←] Focus window left" "qtile cmd-obj -o layout -f left")
+obds+=("[Alt →] Focus window right" "qtile cmd-obj -o layout -f right")
 obds+=("[Shift Tab] Next window" "qtile cmd-obj -o layout -f next")
 obds+=(" " "ignore")
 
