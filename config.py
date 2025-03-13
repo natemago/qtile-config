@@ -28,7 +28,7 @@ import os
 import subprocess
 
 from libqtile.config import Key, Screen, Group, Drag, Click, Match
-from libqtile.command import lazy
+from libqtile.lazy import lazy
 from libqtile import layout, bar, widget, hook
 from libqtile.widget.backlight import ChangeDirection
 from libqtile.log_utils import logger
@@ -67,7 +67,7 @@ keys = [
     Key([alt], "Down", lazy.layout.down()),
     Key([alt], "Left", lazy.layout.left()),
     Key([alt], "Right", lazy.layout.right()),
-    Key(['shift'], 'Tab', lazy.layout.next()),
+    #Key(['shift'], 'Tab', lazy.layout.next()),
     #Key([alt, 'shift'], 'Tab', lazy.layout.previous()),
 
     # Move windows up or down in current stack
@@ -90,7 +90,8 @@ keys = [
     Key([mod, ctrl], "r", lazy.restart()),
     Key([mod, ctrl], "q", lazy.shutdown()),
     Key([mod], "w", lazy.window.kill()),
-    Key([ctrl, alt], "l", lazy.spawn("i3lock --color 000000")),
+    # Key([ctrl, alt], "l", lazy.spawn("i3lock --color 000000")),
+    Key([ctrl, alt], "l", lazy.spawn("xscreensaver-command -lock")),
     Key([mod, ctrl], "s", lazy.spawn("mons -s")),
     Key([mod, ctrl], "p", lazy.spawn("mons -o")),
 
@@ -253,8 +254,8 @@ screens = [
                 keyboardLayoutWidget,
                 widget.Clock(
                     format='[ %Y-%m-%d %a %I:%M:%S %p ]',
-                    foreground=palette.info,
-                    background=darken(palette.background, 0.5),
+                    foreground=palette.background,
+                    background=palette.foreground,#darken(palette.background, 0.5),
                     font='monospace bold',
                 ),
             ],

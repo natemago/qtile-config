@@ -1,7 +1,7 @@
 from colorsys import rgb_to_hls, hls_to_rgb
 from types import SimpleNamespace
 from libqtile.widget import base, KeyboardLayout
-from libqtile.command import lazy
+from libqtile.lazy import lazy
 from libqtile import bar
 from libqtile.log_utils import logger
 from subprocess import Popen, PIPE

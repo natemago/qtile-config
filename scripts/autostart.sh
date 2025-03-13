@@ -4,6 +4,7 @@
 # kbdd 
 # Set background
 nitrogen --restore &
+xscreensaver --no-splash &
 
 # Enable touchpad tap to click
 xinput set-prop "SynPS/2 Synaptics TouchPad" 300 1 &

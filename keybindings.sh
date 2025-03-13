@@ -6,7 +6,7 @@ obds+=("[Alt ↑] Focus window above" "qtile cmd-obj -o layout -f up")
 obds+=("[Alt ↓] Focus window down" "qtile cmd-obj -o layout -f down")
 obds+=("[Alt ←] Focus window left" "qtile cmd-obj -o layout -f left")
 obds+=("[Alt →] Focus window right" "qtile cmd-obj -o layout -f right")
-obds+=("[Shift Tab] Next window" "qtile cmd-obj -o layout -f next")
+#obds+=("[Shift Tab] Next window" "qtile cmd-obj -o layout -f next")
 obds+=(" " "ignore")
 
 obds+=("-- Move and manage windows --" "ignore")
